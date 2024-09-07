@@ -418,6 +418,7 @@
       function addProjectTitileToLocalStorage(title) {
         localStorage.setItem("project_name", title);
       }
+
       // Toggle the chatbot window
       function toggleChatbot() {
         const chatbotWindow = document.getElementById("chatbotWindow");
@@ -437,6 +438,42 @@
         "What is real-time spending?":
           "Real-time spending refers to the total amount of money spent so far on active procurement projects.",
       };
+
+      // Send FAQ question
+      function sendFAQ(question) {
+        document.getElementById("chatInput").value = question;
+        sendMessage();
+      }
+
+      // Send user message and get response
+      function sendMessage() {
+        const chatInput = document.getElementById("chatInput");
+        const message = chatInput.value.trim();
+
+        if (message !== "") {
+          displayMessage(message, "user");
+          const response =
+            chatbotResponses[message] ||
+            "Sorry, I don't understand that question. Please try another.";
+          setTimeout(() => displayMessage(response, "bot"), 500); // Simulate delay for bot response
+          chatInput.value = ""; // Clear input field
+        }
+      }
+
+      // Display chat message
+      function displayMessage(message, sender) {
+        const chatBody = document.getElementById("chatBody");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("chat-message", sender);
+
+        const content = document.createElement("div");
+        content.classList.add("message-content");
+        content.textContent = message;
+
+        messageElement.appendChild(content);
+        chatBody.appendChild(messageElement);
+        chatBody.scrollTop = chatBody.scrollHeight; // Scroll to bottom of chat
+      }
 
       // Send user message and get response
       function sendMessage() {
