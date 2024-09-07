@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Procurement Optimizer Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        background-color: #f4f4f9;
+        padding: 20px;
+      }
+      .header {
+        background-color: #004080;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+      }
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        flex: 1 1 calc(50% - 40px); /* Adjust the size of the card */
+        min-width: 280px;
+        margin-bottom: 20px;
+      }
+      .card h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+      .real-time-spending {
+        /* background-color: #0073e6; */
+        /* color: white; */
+        text-align: center;
+        padding: 20px;
+        border-radius: 8px;
+        display: grid;
+        place-content: center;
+      }
+      .chart-container {
+        width: 100%;
+        height: 300px;
+      }
+      .summary-table {
+        width: 100%;
+        margin-top: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid #ddd;
+      }
+      th,
+      td {
+        padding: 12px;
+        text-align: center;
+      }
+      th {
+        background-color: #004080;
+        color: white;
+      }
+      .alert {
+        background-color: #ffcc00;
+        color: #4d4d00;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+      }
+      .flagged-bids-table {
+        margin-top: 20px;
+      }
+      .status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+      }
+      .status.green {
+        background-color: #4caf50;
+        color: white;
+      }
+      .status.yellow {
+        background-color: #ffeb3b;
+        color: black;
+      }
+      .status.red {
+        background-color: #f44336;
+        color: white;
+      }
+
+      /* New Ethical AI Auditing & Privacy Shield Section */
+      .audit-privacy-section {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        background-color: #f4f4f9;
+        padding: 20px;
+        margin-top: 20px;
+        gap: 10px;
+      }
+      .audit-privacy-section,
+      div {
+        flex-grow: 1;
+      }
+
+      .audit-status,
+      .privacy-status {
+        background-color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .audit-status h3,
+      .privacy-status h3 {
+        margin-bottom: 10px;
+      }
+
+      .audit-status p,
+      .privacy-status p {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      /* Chatbot styles */
+      .chatbot-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #0073e6;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+      }
+
+      .chatbot-window {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 300px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: none; /* Initially hidden */
+        flex-direction: column;
+      }
+
+      .chatbot-header {
+        background-color: #004080;
+        color: white;
+        padding: 10px;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+        font-size: 18px;
+      }
+
+      .chatbot-body {
+        padding: 10px;
+        height: 200px;
+        overflow-y: auto;
+      }
+
+      .chatbot-input-container {
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        display: flex;
+      }
+
+      .chatbot-input-container input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      .chatbot-input-container button {
+        background-color: #0073e6;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        margin-left: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .chat-message {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+
+      .chat-message.user {
+        justify-content: flex-end;
+      }
+
+      .chat-message.bot {
+        justify-content: flex-start;
+      }
+
+      .chat-message .message-content {
+        padding: 8px 12px;
+        border-radius: 10px;
+        background-color: #e0e0e0;
+        max-width: 70%;
+      }
+
+      .chat-message.user .message-content {
+        background-color: #0073e6;
+        color: white;
+      }
+      .details-button {
+        background-color: #0073e6;
+        color: white;
+        padding: 8px 16px;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      /* Responsive design */
+      @media (max-width: 1024px) {
+        .container {
+          flex-direction: column;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .card {
+          flex: 1 1 100%; /* Make the cards full width on smaller screens */
+        }
+
+        table,
+        th,
+        td {
+          font-size: 14px;
+          padding: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">AI Procurement Optimizer Dashboard</div>
+
+    <div class="container">
+      <!-- Real-time Spending Card -->
+      <div class="card real-time-spending">
+        <h2>Real-Time Spending</h2>
+        <p>Total: $5.2M</p>
+        <p>Procurement Projects: 3</p>
+        <div class="chart-container">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Procurement Summary Table -->
+      <div class="card">
+        <h2>Procurement Summary</h2>
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Bid Amount</th>
+              <th>AI Score</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Project A</td>
+              <td>$500K</td>
+              <td>85</td>
+              <td><span class="status green">Normal</span></td>
+            </tr>
+            <tr>
+              <td>Project B</td>
+              <td>$1.2M</td>
+              <td>75</td>
+              <td><span class="status yellow">Warning</span></td>
+            </tr>
+            <tr>
+              <td>Project C</td>
+              <td>$2M</td>
+              <td>90</td>
+              <td><span class="status red">Flagged</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Detailed Flagged Bids Section -->
+      <div class="card">
+        <h2>Flagged Bids - Detailed Anomalies</h2>
+        <table class="summary-table flagged-bids-table">
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Reason for Flagging</th>
+              <th>Severity</th>
+              <th>Date Flagged</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Project C</td>
+              <td>Bid 30% higher than average</td>
+              <td><span class="status red">High</span></td>
+              <td>2024-09-06</td>
+              <td>
+                <a class="details-button" href="detail-page.html">Details</a>
+              </td>
+            </tr>
+            <tr>
+              <td>Project D</td>
+              <td>Vendor performance concerns</td>
+              <td><span class="status yellow">Medium</span></td>
+              <td>2024-09-05</td>
+              <td>
+                <a class="details-button" href="detail-page.html">Details</a>
+              </td>
+            </tr>
+            <tr>
+              <td>Project E</td>
+              <td>Timeline issues detected</td>
+              <td><span class="status red">High</span></td>
+              <td>2024-09-04</td>
+              <td>
+                <a class="details-button" href="detail-page.html">Details</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bar Chart Card -->
+      <div class="card">
+        <h2>AI Score Distribution</h2>
+        <div class="chart-container">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ethical AI Auditing and Privacy Shield Section -->
+    <div class="audit-privacy-section">
+      <!-- Ethical AI Auditing Status -->
+      <div class="audit-status">
+        <h3>Ethical AI Auditing Status</h3>
+        <p>Last Audit Date: <strong>2024-08-30</strong></p>
+        <p>Audit Result: <span class="status green">Passed</span></p>
+        <p>No significant biases detected in the AI procurement system.</p>
+      </div>
+
+      <!-- Privacy Shield Status -->
+      <div class="privacy-status">
+        <h3>Privacy Shield</h3>
+        <p>Data Anonymization Status: <strong>Active</strong></p>
+        <p>
+          All sensitive procurement details are anonymized before public
+          display.
+        </p>
+        <p>No data breaches detected in the last 90 days.</p>
+      </div>
+    </div>
+
+    <!-- Chatbot Button and Window -->
+    <button class="chatbot-button" onclick="toggleChatbot()">💬</button>
+
+    <div class="chatbot-window" id="chatbotWindow">
+      <div class="chatbot-header">Chatbot</div>
+      <div class="chatbot-body" id="chatBody"></div>
+      <div class="chatbot-input-container">
+        <input type="text" id="chatInput" placeholder="Ask a question..." />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <script>
+      // Toggle the chatbot window
+      function toggleChatbot() {
+        const chatbotWindow = document.getElementById("chatbotWindow");
+        chatbotWindow.style.display =
+          chatbotWindow.style.display === "none" ||
+          chatbotWindow.style.display === ""
+            ? "flex"
+            : "none";
+      }
+
+      // Chatbot responses
+      const chatbotResponses = {
+        "What is AI score?":
+          "The AI score represents the evaluation of each project's bid based on various factors like cost, vendor performance, and timelines.",
+        "How many projects are flagged?":
+          "There are currently 3 flagged projects due to issues like high costs and vendor concerns.",
+        "What is real-time spending?":
+          "Real-time spending refers to the total amount of money spent so far on active procurement projects.",
+      };
+
+      // Send user message and get response
+      function sendMessage() {
+        const chatInput = document.getElementById("chatInput");
+        const message = chatInput.value.trim();
+
+        if (message !== "") {
+          displayMessage(message, "user");
+          const response =
+            chatbotResponses[message] ||
+            "Sorry, I don't understand that question. Please try another.";
+          setTimeout(() => displayMessage(response, "bot"), 500); // Simulate delay for bot response
+          chatInput.value = ""; // Clear input field
+        }
+      }
+
+      // Display chat message
+      function displayMessage(message, sender) {
+        const chatBody = document.getElementById("chatBody");
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("chat-message", sender);
+
+        const content = document.createElement("div");
+        content.classList.add("message-content");
+        content.textContent = message;
+
+        messageElement.appendChild(content);
+        chatBody.appendChild(messageElement);
+        chatBody.scrollTop = chatBody.scrollHeight; // Scroll to bottom of chat
+      }
+
+      // Pie Chart for Real-Time Spending
+      const pieCtx = document.getElementById("pieChart").getContext("2d");
+      const pieChart = new Chart(pieCtx, {
+        type: "pie",
+        data: {
+          labels: ["Project A", "Project B", "Project C"],
+          datasets: [
+            {
+              data: [20, 30, 40], // Data for the projects
+              backgroundColor: ["#4caf50", "#ffeb3b", "#f44336"], // Removed blue background
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: true,
+              position: "bottom",
+            },
+          },
+        },
+      });
+
+      // Bar Chart for AI Score Distribution with meaningful colors
+      const barCtx = document.getElementById("barChart").getContext("2d");
+
+      // Sample AI scores for projects
+      const aiScores = [85, 75, 90, 55]; // AI scores for Project A, B, C, D
+
+      // Function to assign color based on score
+      function getColor(score) {
+        if (score >= 80) return "#4caf50"; // Green for high scores
+        else if (score >= 60) return "#ffeb3b"; // Yellow for moderate scores
+        else return "#f44336"; // Red for low scores
+      }
+
+      const barChart = new Chart(barCtx, {
+        type: "bar",
+        data: {
+          labels: ["Project A", "Project B", "Project C", "Project D"],
+          datasets: [
+            {
+              label: "AI-Score",
+              data: aiScores,
+              backgroundColor: aiScores.map((score) => getColor(score)), // Apply color based on score
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
