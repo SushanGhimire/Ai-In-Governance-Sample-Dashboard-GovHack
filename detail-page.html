@@ -45,10 +45,10 @@
     </style>
   </head>
   <body>
-    <div class="header">Project C - Detailed Information</div>
+    <div class="header" id="header-title">Project C - Detailed Information</div>
 
     <div class="details-container">
-      <h2>Project C</h2>
+      <h2 id="title">Project C</h2>
       <p><strong>Reason for Flagging:</strong> Bid 30% higher than average</p>
       <p><strong>Severity:</strong> High</p>
       <p><strong>Flagged on:</strong> 2024-09-06</p>
@@ -60,4 +60,16 @@
       <a href="index.html">Back to Dashboard</a>
     </div>
   </body>
+  <script>
+    window.addEventListener("load", function () {
+      console.log(localStorage.getItem("project_name"));
+      const getTitle =
+        localStorage.getItem("project_name") ??
+        "Project Name - Detailed Information";
+      const title = document.getElementById("title");
+      const headerTitle = document.getElementById("header-title");
+      headerTitle.innerHTML = `${getTitle} - Detailed Information`;
+      title.innerHTML = `${getTitle}`;
+    });
+  </script>
 </html>
